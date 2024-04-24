@@ -1,60 +1,87 @@
 
 
-let dssv = []
-
-function themSv() {
-
-    let maSv = document.querySelector("#txtMaSV").value;
-    let tenSv = document.querySelector("#txtTenSV").value;
-    let email = document.querySelector("#txtEmail").value;
-    let pass = document.querySelector("#txtPass").value;
-    let diemToan = document.querySelector("#txtDiemToan").value * 1;
-    let diemLy = document.querySelector("#txtDiemLy").value * 1;
-    let diemHoa = document.querySelector("#txtDiemHoa").value * 1;
-
-    let sv = {
-        ma: maSv,
-        ten: tenSv,
-        email: email,
-        matkhau: pass,
-        toan: diemToan,
-        ly: diemLy,
-        hoa: diemHoa,
-        tinhDTB: function () {
-            return ((this.toan + this.ly + this.hoa) / 3);
-        },
-    }
-
-    // dssv.push(sv);
-    dssv.unshift(sv);
-
-    //convert Array to Json
-    var dataJson = JSON.stringify(dssv);
-    localStorage.setItem("DSSV", dataJson);
-    renderDssv(dssv);
-};
-
-//convert JSON to Array
+let dssv = [];
 var dataJson = localStorage.getItem("DSSV");
+
 if (dataJson !== null) {
 
-    dssv = JSON.parse(dataJson);
+    var dataRaw = JSON.parse(dataJson);
+
+    for (let i = 0; i < dataRaw.length; i++) {
+
+        let data = dataRaw[i];
+
+        let sv = new Sinhvien(data.ma, data.ten, data.email, data.matKhau, data.toan, data.ly, data.hoa);
+
+        dssv.push(sv);
+    }
+
     renderDssv(dssv);
 }
 
-function xoaSV(id) {
 
-    let indexSv = dssv.findIndex(function (item) {
+// THEM SV
+function themSv() {
 
+    let sv = layThongTinTuForm();
+    dssv.unshift(sv);
 
-        return item.ma == id;
-
-    });
-    dssv.splice(0, 1);
-
-    //update dssv
     var dataJson = JSON.stringify(dssv);
     localStorage.setItem("DSSV", dataJson);
     renderDssv(dssv);
 
+    resetForm();
+}
+
+// XOA SV
+function xoaSv(id) {
+
+    let index = dssv.findIndex(function (sv) {
+        return sv.ma == id;
+    });
+
+    dssv.splice(index, 1);
+
+    var dataJson = JSON.stringify(dssv);
+    localStorage.setItem("DSSV", dataJson);
+    renderDssv(dssv);
+}
+
+// SUA SV
+function suaSv(id) {
+    let index = dssv.findIndex(function (item) {
+        return item.ma == id;
+    });
+
+    let sv = dssv[index]
+
+    document.querySelector("#txtMaSV").value = sv.ma;
+    document.querySelector("#txtTenSV").value = sv.ten;
+    document.querySelector("#txtEmail").value = sv.email;
+    document.querySelector("#txtPass").value = sv.matKhau;
+    document.querySelector("#txtDiemToan").value = sv.toan;
+    document.querySelector("#txtDiemLy").value = sv.ly;
+    document.querySelector("#txtDiemHoa").value = sv.hoa;
+
+    document.querySelector("#txtMaSV").readOnly = true;
+}
+
+// UPDATE SV
+function capNhatSv() {
+
+    let sv = layThongTinTuForm();
+
+    let index = dssv.findIndex(function (item) {
+    return item.ma == sv.ma;
+    })
+    dssv[index] = sv;
+
+    renderDssv(dssv);
+    resetForm();
+}
+
+// RESET INPUT
+function resetForm() {
+    document.getElementById("formQLSV").reset();
+    document.querySelector("#txtMaSV").readOnly = false;
 }
